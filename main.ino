@@ -1,4 +1,7 @@
-/*     Simple Stepper Motor Control Exaple Code
+/* 
+
+| home |{object being measured}   /[lsw]------screw-----------(motor)
+0
  */
 // defines pins numbers
 const int stepPin = 3; 
@@ -8,7 +11,21 @@ const int limSwitchPin = 6;
 
 int mSteps=0;
 
-const int numStepsToBackUp = 200;
+const int numMStepsToBackUpALittle = 200*16;
+const int numMStepsToBackUpALot = 2000*16;
+const float MM_PER_MICROSTEP = 1234567; // TODO update
+
+char getNextCharInput(){
+  char c = '';
+  while(c != endOfPacketMarker)
+  {
+     if(Serial.available() > 0)
+     {
+        c = Serial.read();
+     }
+  }
+  return c;
+}
  
 void setup() {
   // Sets the two pins as Outputs
@@ -30,21 +47,21 @@ int forwardUntilHit(bool slow){
     digitalWrite(stepPin, HIGH);
     if (slow){
       delayMicroseconds(100);
-      mSteps++;
+      mSteps--;
     }
     else{
       delayMicroseconds(500);
-      mSteps+=16;
+      mSteps-=16;
     }
   }
   return mSteps;
 }
 
-int backUpABit(){
+int backUp(numMStepsToBackUp){
   int mStepsBackwards = 0;
   digitalWrite(msPin,LOW);
   digitalWrite(dirPin,HIGH);
-  while(mStepsBackwards < numStepsToBackUp){
+  while(mStepsBackwards < numMStepsToBackUp){
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(500);
     mStepsBackwards+=16;
@@ -52,21 +69,37 @@ int backUpABit(){
   return mStepsBackwards;
 }
 
-int measure(){
+void home(){
+  // secretly just uses measure
+  Serial.println("starting home");
+  int howFarFromHomeWereWe = measure();
+  Serial.print("We were ");
+  Serial.print(howFarFromHomeWereWe);
+  Serial.print(" mSteps from home");
   mSteps=0;
+}
+
+int measure(){
+  Serial.println("Starting measure()");
+  Serial.print("mSteps = ");
+  Serial.println(mSteps);
+
   int mStepsToFirstTouch = forwardUntilHit(false);
 
-  mSteps+=mStepsToFirstTouch;
+  mSteps-=mStepsToFirstTouch;
 
   Serial.print("mStepsToFirstTouch = ");
   Serial.println(mStepsToFirstTouch);
+  
+  Serial.print("mSteps = ");
+  Serial.println(mSteps);
 
-  int mStepsBackwards = backUpABit();
+  int mStepsBackwards = backUpABit(numMStepsToBackUpALittle);
 
   Serial.print("mStepsBackwards = ");
   Serial.println(mStepsBackwards);
 
-  mSteps-=mStepsBackwards;
+  mSteps+=mStepsBackwards;
 
   Serial.print("total mSteps (after backing up) = ");
   Serial.println(mSteps);
@@ -76,23 +109,34 @@ int measure(){
   Serial.print("mStepsToSecondTouch = ");
   Serial.println(mStepsToSecondTouch);
 
-  mSteps += mStepsToSecondTouch;
+  mSteps -= mStepsToSecondTouch;
 
-  Serial.print("total mSteps (total/final) = ");
+  Serial.print("total mSteps (final) = ");
   Serial.println(mSteps);
   
   return mSteps;
 }
 
 void loop() {
-  
-  digitalWrite(dirPin,LOW); //Changes the rotations direction
-  // Makes 400 pulses for making two full cycle rotation
-  for(int x = 0; x < 400; x++) {
-    digitalWrite(stepPin,HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin,LOW);
-    delayMicroseconds(500);
+  char input == '';
+  while(input != 'q'){
+    input = getNextCharInput();
+    if (input == 'h'){
+      home();
+      int numMStepsBack = backUpABit(numMStepsToBackUpALot);
+      mSteps += numMStepsBack;
+    }
+
+    else if (input == 'm'){
+      int measurement = measure();
+      Serial.print("Made a measurement of ");
+      Serial.print(measurement);
+      Serial.print(" microsteps which is ");
+      Serial.print(measurement*MM_PER_MICROSTEP);
+      Serial.println(" mm.")
+      Serial.println("Backing up a little then waiting for next input");
+      backUpABit(numMStepsToBackUpALittle);
+    }
   }
-  delay(1000);
+  return;
 }
