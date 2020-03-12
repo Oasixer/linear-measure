@@ -94,6 +94,8 @@ int measure(){
   
   Serial.print("mSteps = ");
   Serial.println(mSteps);
+  
+  delay(500);
 
   int mStepsBackwards = backUpABit(numMStepsToBackUpALittle);
 
@@ -105,6 +107,7 @@ int measure(){
   Serial.print("total mSteps (after backing up) = ");
   Serial.println(mSteps);
 
+  delay(500);
   int mStepsToSecondTouch = forwardUntilHit(true);
 
   Serial.print("mStepsToSecondTouch = ");
@@ -115,6 +118,7 @@ int measure(){
   Serial.print("total mSteps (final) = ");
   Serial.println(mSteps);
   
+  delay(200);
   return mSteps;
 }
 
@@ -138,6 +142,7 @@ void loop() {
       Serial.println("Backing up a little then waiting for next input");
       backUpABit(numMStepsToBackUpALittle);
     }
+    delay(200);
   }
   return;
 }
