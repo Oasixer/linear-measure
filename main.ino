@@ -15,6 +15,14 @@ const int numMStepsToBackUpALittle = 200*16;
 const int numMStepsToBackUpALot = 2000*16;
 const float MM_PER_MICROSTEP = 1234567; // TODO update
 
+void setup() {
+  // Sets the two pins as Outputs
+  pinMode(stepPin,OUTPUT); 
+  pinMode(dirPin,OUTPUT);
+  pinMode(msPin,OUTPUT);
+  pinMode(limSwitchPin,INPUT);
+}
+
 char getNextCharInput(){
   char c = '';
   while(c != endOfPacketMarker)
@@ -27,13 +35,6 @@ char getNextCharInput(){
   return c;
 }
  
-void setup() {
-  // Sets the two pins as Outputs
-  pinMode(stepPin,OUTPUT); 
-  pinMode(dirPin,OUTPUT);
-  pinMode(msPin,OUTPUT);
-  pinMode(limSwitchPin,INPUT);
-}
 
 int forwardUntilHit(bool slow){
   digitalWrite(dirPin,LOW);
