@@ -21,13 +21,15 @@ int forwardUntilHit(bool slow){
   while(digitalRead(SWITCH_PIN)==LOW){
     digitalWrite(STEP_PIN, HIGH);
     if (slow){
-      delayMicroseconds(100);
+      delayMicroseconds(300);
       mSteps--;
     }
     else{
       delayMicroseconds(500);
       mSteps-=16;
     }
+    digitalWrite(STEP_PIN, LOW);
+    delayMicroseconds(slow?300:500);
   }
   return mSteps;
 }
@@ -38,6 +40,8 @@ int backUp(int numMStepsToBackUp){
   digitalWrite(DIRECTION_PIN,HIGH);
   while(mStepsBackwards < numMStepsToBackUp){
     digitalWrite(STEP_PIN, HIGH);
+    delayMicroseconds(500);
+    digitalWrite(STEP_PIN, LOW);
     delayMicroseconds(500);
     mStepsBackwards+=16;
   }
