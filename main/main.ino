@@ -42,12 +42,18 @@ void loop() {
       }
       Serial.println("Done");
     }
+    
+    if (input == 'b'){
+      Serial.println("Starting back up mode");
+      Serial.println(MICROSTEPS_PER_MM);
+      Serial.println(numMStepsToBackUpALittle);
+      backUp(numMStepsToBackUpALittle);
+      Serial.println("Done");
+    }
 
     else if (input == 'h'){
       Serial.println("Starting home mode");
       home();
-      int numMStepsBack = backUp(numMStepsToBackUpALot);
-      mSteps += numMStepsBack;
     }
 
     else if (input == 'm'){
